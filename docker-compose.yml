@@ -1,13 +1,30 @@
-version: '3.8'
-
+name: my_compose_container
 services:
-  api:
-    build: .
-    container_name: nest-api
+  nest-app:
+    build:
+      context: .
+    command: ['sh', '-c', 'npx prisma db push && yarn start:prod']
     ports:
-      - '4000:4000'
-    restart: always
+      - '3000:4000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=${DATABASE_DOCKER_URL}
+    env_file:
+      - .env
+  postgres:
+    image: postgres:17.5
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_DB}
+    env_file:
+      - .env
     healthcheck:
-      interval: 30s
-      timeout: 10s
+      test: ['CMD-SHELL', 'pg_isready -U johndoe -d mydb']
+      timeout: 3s
+      interval: 5s
       retries: 3
+    ports:
+      - '5433:5432'
