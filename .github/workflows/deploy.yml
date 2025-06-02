@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,10 +16,10 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
-          echo "$SSH_KEY" > key.pem
+          printf "%s" "$SSH_KEY" > key.pem
           chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "
-            cd /home/ubuntu/app &&
+            cd /home/ubuntu/app/musobaqa &&
             git pull origin main &&
             sudo docker-compose down &&
             sudo docker-compose up --build -d
